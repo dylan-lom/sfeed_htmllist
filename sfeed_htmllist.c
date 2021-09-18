@@ -65,46 +65,46 @@ int main(int argc, char *argv[])
     FILE *fp;
     FILE *fpout = stdout;
 
-	if (pledge("stdio rpath wpath cpath", NULL) == -1)
-		err(1, "pledge");
+    if (pledge("stdio rpath wpath cpath", NULL) == -1)
+        err(1, "pledge");
 
-	if (!(feeds = calloc(argc, sizeof(struct feed))))
-		err(1, "calloc");
+    if (!(feeds = calloc(argc, sizeof(struct feed))))
+        err(1, "calloc");
 
-	if ((comparetime = time(NULL)) == -1)
-		err(1, "time");
-	/* 1 day is old news */
-	comparetime -= 86400;
+    if ((comparetime = time(NULL)) == -1)
+        err(1, "time");
+    /* 1 day is old news */
+    comparetime -= 86400;
 
-	if (pledge(argc == 1 ? "stdio" : "stdio rpath", NULL) == -1)
-		err(1, "pledge");
+    if (pledge(argc == 1 ? "stdio" : "stdio rpath", NULL) == -1)
+        err(1, "pledge");
 
-	if (argc == 1) assert(0 && "TODO: Reading from stdin is not implemented yet");
+    if (argc == 1) assert(0 && "TODO: Reading from stdin is not implemented yet");
 
-	int feedsleft = argc-1;
-	for (int i = 1; i < argc; i++) {
-		struct feed *f = &feeds[i - 1];
-		char *name = ((name = strrchr(argv[i], '/'))) ? name + 1 : argv[i];
-		f->name = name;
+    int feedsleft = argc-1;
+    for (int i = 1; i < argc; i++) {
+        struct feed *f = &feeds[i - 1];
+        char *name = ((name = strrchr(argv[i], '/'))) ? name + 1 : argv[i];
+        f->name = name;
 
-		if (!(fp = fopen(argv[i], "r")))
-			err(1, "fopen: %s", argv[i]);
+        if (!(fp = fopen(argv[i], "r")))
+            err(1, "fopen: %s", argv[i]);
 
         f->fp = fp;
         loadfeedhead(f);
         if (f->head == NULL) feedsleft--; // feed was empty
-	}
+    }
 
-	while (feedsleft) {
-	   struct feed *next = NULL;
-	   for (int i = 1; i < argc; i++) {
-	       if (!next || feeds[i].headts > next->headts) {
-	           next = &feeds[i];
-	       }
-	   }
+    while (feedsleft) {
+       struct feed *next = NULL;
+       for (int i = 1; i < argc; i++) {
+           if (!next || feeds[i].headts > next->headts) {
+               next = &feeds[i];
+           }
+       }
 
-	   printfeedhead(fpout, next);
-	   loadfeedhead(next);
-	   if (next->head == NULL) feedsleft--; // feed is exhausted
-	}
+       printfeedhead(fpout, next);
+       loadfeedhead(next);
+       if (next->head == NULL) feedsleft--; // feed is exhausted
+    }
 }
