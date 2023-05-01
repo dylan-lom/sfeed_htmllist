@@ -1,0 +1,89 @@
+#!/bin/sh
+#
+#depends: GNU/OpenBSD date(1).
+
+limit=10
+
+fieldUnixTimestamp() {
+	printf "%s\n" "$1" | cut -f1
+}
+fieldTitle() {
+	printf "%s\n" "$1" | cut -f2
+}
+fieldLink() {
+	printf "%s\n" "$1" | cut -f3
+}
+fieldContent() {
+	printf "%s\n" "$1" | cut -f4
+}
+fieldContentType() {
+	printf "%s\n" "$1" | cut -f5
+}
+fieldId() {
+	printf "%s\n" "$1" | cut -f6
+}
+fieldAuthor() {
+	printf "%s\n" "$1" | cut -f7
+}
+fieldEnclosure() {
+	printf "%s\n" "$1" | cut -f8
+}
+fieldCategory() {
+	printf "%s\n" "$1" | cut -f9
+}
+fieldLast() {
+	printf "%s\n" "$1" | cut -f10
+}
+alias fieldSource=fieldLast
+
+# Compat for passing in a timestamp to date(1). Tested with GNU and OpenBSD date
+cdate() {
+	ts="$1"
+	shift
+	(date --date="@$ts" "$@" || date --date="$ts" "$@" \
+		|| date -r "$ts" "$@") 2>/dev/null
+}
+
+fieldTimestamp() {
+	cdate "$(fieldUnixTimestamp "$1")" "+%F"
+}
+
+fieldUnescapedContent() {
+	fieldContent "$1" | sed 's/\\n/\n/g; s/\\t/\t/g'
+}
+
+getfeeds() {
+	if [ "$#" -lt 1 ]; then
+		cat
+		return
+	fi
+
+	for f in "$@"; do
+		feedname="$(basename "$f")"
+		head -n "$limit" "$f" | sed "s|$|\t$feedname|"
+	done
+}
+
+format="
+	<li>
+		<div class="entry">
+			<span class="feed">(%s) <a class=\"title\" href=\"%s\">%s</a> via <span class=\"source\">%s</span></span>
+			<div class="content">%s</div>
+		</div>
+	</li>
+"
+
+echo "<ul>"
+IFS="
+"
+for feed in $(getfeeds "$@" | sort -nr); do
+	fieldTimestamp "$feed"
+	# printf "$format" \
+	# 	"$(fieldTimestamp "$feed")" \
+	# 	"$(fieldLink "$feed")" \
+	# 	"$(fieldTitle "$feed")" \
+	# 	"$(fieldSource "$feed")" \
+	# 	"$(fieldUnescapedContent "$feed")"
+done
+echo "</ul>"
+

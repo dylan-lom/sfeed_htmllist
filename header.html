@@ -1,0 +1,44 @@
+<style>
+  .source {
+    font-style: italic;
+  }
+
+  .content {
+    display: none;
+  }
+
+  .contentToggle {
+    background: none;
+    border: none;
+    color: blue;
+    text-decoration: underline;
+  }
+</style>
+
+<script>
+  function newToggle(target) {
+    const button = document.createElement('input')
+    button.type = 'button'
+    button.value = '...'
+    button.classList.add('contentToggle')
+    button.addEventListener('click', function() {
+      if (target.style.display == 'block') {
+        target.style.display = 'none'
+      } else {
+        target.style.display = 'block'
+      }
+    })
+    return button
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('help')
+    Array.from(document.querySelectorAll('.entry')).forEach(entry => {
+        const content = entry.querySelector('.content')
+        const feed = entry.querySelector('.feed')
+        const toggle = newToggle(content)
+        feed.appendChild(toggle)
+        console.log(feed)
+    })
+  })
+</script>
