@@ -77,13 +77,12 @@ echo "<ul>"
 IFS="
 "
 for feed in $(getfeeds "$@" | sort -nr); do
-	fieldTimestamp "$feed"
-	# printf "$format" \
-	# 	"$(fieldTimestamp "$feed")" \
-	# 	"$(fieldLink "$feed")" \
-	# 	"$(fieldTitle "$feed")" \
-	# 	"$(fieldSource "$feed")" \
-	# 	"$(fieldUnescapedContent "$feed")"
+	printf "$format" \
+		"$(fieldTimestamp "$feed")" \
+		"$(fieldLink "$feed")" \
+		"$(fieldTitle "$feed")" \
+		"$(fieldSource "$feed")" \
+		"$(fieldUnescapedContent "$feed")"
 done
 echo "</ul>"
 
